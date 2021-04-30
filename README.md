@@ -5,7 +5,6 @@ OpenFF GOpt
 [![codecov](https://codecov.io/gh/openforcefield/openff-gopt/branch/master/graph/badge.svg)](https://codecov.io/gh/openforcefield/openff-gopt/branch/master)
 ![Make single-file installers](https://github.com/openforcefield/openff-gopt/workflows/Make%20single-file%20installers/badge.svg)
 ![Pure-Python Package Build](https://github.com/openforcefield/openff-gopt/workflows/Pure-Python%20Package%20Build/badge.svg)
-![Deployment - OpenFF Benchmark Prod Environments](https://github.com/openforcefield/openff-gopt/workflows/Deployment%20-%20OpenFF%20Benchmark%20Prod%20Environments/badge.svg)
 
 `conda env create openforcefield/openff-gopt-optimization`
 

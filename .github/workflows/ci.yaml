@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  # run once a day at noon UTC
+  schedule:
+    - cron: "0 12 * * *"
+  push:
+    branches:
+      - "master"
+  pull_request:
+    branches:
+      - "master"
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: 
+          - ubuntu-latest
+         #- macOS-latest 
+         #python-version: 
+         #  - 3.6
+         #  - 3.7
+    env:
+      CI_OS: ${{ matrix.os }}
+      #PYVER: ${{ matrix.python-version }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Cache conda
+      uses: actions/cache@v2
+      env:
+        # Increase this value to reset cache if etc/example-environment.yml has not changed
+        CACHE_NUMBER: 0
+      with:
+        path: ~/conda_pkgs_dir
+        key:
+          ${{ matrix.os }}-conda-${{ env.CACHE_NUMBER }}-${{
+          hashFiles('devtools/conda-envs/test.yaml') }}
+
+    - name: Configure conda
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        #python-version: ${{ matrix.python-version }}
+        activate-environment: test
+        environment-file: devtools/conda-envs/test.yaml
+        auto-activate-base: false
+        use-only-tar-bz2: true # IMPORTANT: This needs to be set for caching to work properly!
+
+    - name: Additional info about the build
+      shell: bash
+      run: |
+        uname -a
+        df -h
+        ulimit -a
+
+    - name: Environment Information
+      shell: bash -l {0}
+      run: |
+        conda info
+        conda list
+
+    - name: Install pytest, pytest plugins
+      shell: bash -l {0}
+      run: |
+        python -m pip install pytest pytest-cov
+
+    - name: Install package
+      shell: bash -l {0}
+      run: |
+        conda remove --force openff-gopt
+        python -m pip install --no-deps -e .
+
+    - name: Run tests
+      shell: bash -l {0}
+      run: |
+        pytest -v --cov=openff --cov-report=xml --cov-config=setup.cfg openff/gopt/tests/
+
+    - name: Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: true
